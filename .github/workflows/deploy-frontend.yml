@@ -3,7 +3,7 @@ name: Deploy Frontend to Render
 on:
   push:
     branches:
-      - main  # replace with your deployment branch if different
+      - master  # replace with your deployment branch if different
 
 jobs:
   deploy-frontend:
