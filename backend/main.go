@@ -13,7 +13,6 @@ type TriviaProps struct {
 	Difficulty string `json:"difficulty"`
 }
 
-// Structure of a single trivia question from Open Trivia DB
 type TriviaQuestion struct {
 	Category         string   `json:"category"`
 	Type             string   `json:"type"`
@@ -23,18 +22,31 @@ type TriviaQuestion struct {
 	IncorrectAnswers []string `json:"incorrect_answers"`
 }
 
-// Open Trivia API response structure
 type TriviaAPIResponse struct {
 	ResponseCode int              `json:"response_code"`
 	Results      []TriviaQuestion `json:"results"`
 }
 
-// --- In-memory storage ---
+// In-memory storage
 var triviaQuestions []TriviaQuestion
 var currentIndex int
 
+func setCORS(w http.ResponseWriter) {
+	w.Header().Set("Access-Control-Allow-Origin", "*") // Next.js frontend
+	w.Header().Set("Access-Control-Allow-Methods", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+}
+
 // POST /trivia-startup
 func triviaPost(w http.ResponseWriter, r *http.Request) {
+	setCORS(w)
+
+	// Handle OPTIONS preflight
+	if r.Method == http.MethodOptions {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -63,7 +75,6 @@ func triviaPost(w http.ResponseWriter, r *http.Request) {
 	fullURL := baseURL + queryParams
 	fmt.Println("Calling Open Trivia API:", fullURL)
 
-	// Call Open Trivia API
 	resp, err := http.Get(fullURL)
 	if err != nil {
 		http.Error(w, "Failed to fetch trivia", http.StatusInternalServerError)
@@ -78,11 +89,9 @@ func triviaPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Store questions in memory
 	triviaQuestions = apiResp.Results
 	currentIndex = 0
 
-	// Respond with success
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"status":    "success",
@@ -92,6 +101,13 @@ func triviaPost(w http.ResponseWriter, r *http.Request) {
 
 // GET /trivia-next
 func triviaNext(w http.ResponseWriter, r *http.Request) {
+	setCORS(w)
+
+	// Handle OPTIONS preflight
+	if r.Method == http.MethodOptions {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
 
 	if currentIndex >= len(triviaQuestions) {
 		http.Error(w, "No more questions available", http.StatusNotFound)
@@ -119,5 +135,4 @@ func main() {
 
 	log.Println("Server running at http://localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
-
 }
