@@ -13,7 +13,9 @@ export interface TriviaQuestion {
   incorrect_answers: string[];
 }
 
-const BASE_URL = "http://localhost:8080";
+const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
+const BASE_URL = apiUrl || "http://localhost:8080";
 
 export async function startTrivia(props: TriviaProps) {
   const res = await fetch(`${BASE_URL}/trivia-startup`, {
