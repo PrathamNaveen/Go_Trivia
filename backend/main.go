@@ -117,6 +117,8 @@ func triviaNext(w http.ResponseWriter, r *http.Request) {
 	q := triviaQuestions[currentIndex]
 	currentIndex++
 
+	fmt.Println("Calling /trivia-next, To get the next question:", currentIndex)
+
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(q)
 }

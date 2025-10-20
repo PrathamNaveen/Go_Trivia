@@ -22,9 +22,9 @@ function createWindow() {
     console.log("Loading Dev URL:", devUrl);
     win.loadURL(devUrl);
   } else {
-    const prodPath = path.join(__dirname, "../out/index.html");
-    console.log("Loading Prod File:", prodPath);
-    win.loadFile(prodPath);
+    const prodUrl = "https://go-trivia-1.onrender.com";
+    console.log("Loading Prod URL:", prodUrl);
+    win.loadURL(prodUrl);
   }
 }
 
