@@ -2,11 +2,12 @@
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
+  "main": "electron/main.js",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint"
+    "electron": "cross-env NODE_ENV=development electron .",
+    "build": "next build && next export",
+    "start": "cross-env NODE_ENV=production electron ."
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.9.1",
