@@ -1,4 +1,5 @@
 import "./globals.css";
+import { Providers } from "./providers";
 
 export const metadata = {
   title: "Trivia Game",
@@ -9,7 +10,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body className="bg-gray-100 min-h-screen flex flex-col items-center justify-center p-4">
-        {children}
+        <Providers>
+          {children}
+        </Providers>
       </body>
     </html>
   );

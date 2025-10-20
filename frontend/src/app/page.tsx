@@ -1,77 +1,78 @@
 "use client";
 
 import { useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import { startTrivia, getNextTrivia, TriviaQuestion } from "./utils/api";
-
-type QuizSettings = {
-  amount: number;
-  category: string;
-  difficulty: string;
-};
+import { RootState, AppDispatch } from "./store/store";
+import {
+  setUsername,
+  startQuiz,
+  nextQuestion,
+  setLoading,
+  setMessage,
+  resetQuiz,
+} from "./store/slices/quizslice";
 
 export default function Home() {
-  const [loading, setLoading] = useState(false);
-  const [username, setUsername] = useState("");
-  const [quizSettings, setQuizSettings] = useState<QuizSettings>({
-    amount: 5,
-    category: "",
-    difficulty: "",
-  });
-  const [quizStarted, setQuizStarted] = useState(false);
+  const dispatch = useDispatch<AppDispatch>();
+  const { username, quizStarted, questionIndex, loading, message } = useSelector(
+    (state: RootState) => state.quiz
+  );
 
   const [question, setQuestion] = useState<TriviaQuestion | null>(null);
-  const [message, setMessage] = useState("");
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
 
-  // --- Start quiz with settings ---
+  // --- Start quiz ---
   const handleStart = async () => {
     if (!username.trim()) {
-      setMessage("Please enter your username");
+      dispatch(setMessage("Please enter your username"));
       return;
     }
 
-    setLoading(true);
-    setMessage("");
+    dispatch(setLoading(true));
+    dispatch(setMessage(""));
     setSelectedAnswer(null);
 
     try {
-      await startTrivia(quizSettings);
+      await startTrivia({ amount: 5, category: "", difficulty: "" }); // you can extend this with settings later
       const nextQ = await getNextTrivia();
       setQuestion(nextQ);
-      setQuizStarted(true);
+      dispatch(startQuiz());
     } catch (err: unknown) {
-      if (err instanceof Error) setMessage(err.message);
-      else setMessage("An unknown error occurred");
+      if (err instanceof Error) dispatch(setMessage(err.message));
+      else dispatch(setMessage("An unknown error occurred"));
     } finally {
-      setLoading(false);
+      dispatch(setLoading(false));
     }
   };
 
   // --- Next question ---
   const handleNext = async () => {
-    setLoading(true);
-    setMessage("");
+    dispatch(setLoading(true));
+    dispatch(setMessage(""));
     setSelectedAnswer(null);
+
     try {
       const nextQ = await getNextTrivia();
       setQuestion(nextQ);
+      dispatch(nextQuestion());
     } catch (err: unknown) {
       if (err instanceof Error) {
-        // If "No more questions", reset quiz
         if (err.message.includes("No more questions")) {
-          setQuizStarted(false);
+          dispatch(resetQuiz());
           setQuestion(null);
-          setMessage("No more questions. Start a new quiz!");
+          setSelectedAnswer(null);
+          dispatch(setMessage("No more questions. Start a new quiz!"));
           return;
         } else {
-          setMessage(err.message);
+          dispatch(setMessage(err.message));
         }
       } else {
-        setMessage("An unknown error occurred");
+        dispatch(setMessage("An unknown error occurred"));
       }
       setQuestion(null);
     } finally {
-      setLoading(false);
+      dispatch(setLoading(false));
     }
   };
 
@@ -90,7 +91,9 @@ export default function Home() {
       <div className="w-full max-w-xl bg-gray-800 rounded-2xl shadow-2xl p-8 text-gray-100">
         {!quizStarted ? (
           <>
-            <h1 className="text-3xl font-bold mb-6 text-center text-indigo-400">Setup Trivia Quiz</h1>
+            <h1 className="text-3xl font-bold mb-6 text-center text-indigo-400">
+              Setup Trivia Quiz
+            </h1>
             {message && <p className="text-red-400 mb-4 text-center">{message}</p>}
 
             <div className="space-y-4">
@@ -99,42 +102,8 @@ export default function Home() {
                 placeholder="Enter your username"
                 className="w-full p-3 rounded-lg bg-gray-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-400"
                 value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                onChange={(e) => dispatch(setUsername(e.target.value))}
               />
-
-              <input
-                type="number"
-                placeholder="Number of questions"
-                className="w-full p-3 rounded-lg bg-gray-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-                value={quizSettings.amount}
-                min={1}
-                max={50}
-                onChange={(e) => setQuizSettings({ ...quizSettings, amount: Number(e.target.value) })}
-              />
-
-              <select
-                className="w-full p-3 rounded-lg bg-gray-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-                value={quizSettings.category}
-                onChange={(e) => setQuizSettings({ ...quizSettings, category: e.target.value })}
-              >
-                <option value="">Any Category</option>
-                <option value="9">General Knowledge</option>
-                <option value="21">Sports</option>
-                <option value="23">History</option>
-                <option value="17">Science & Nature</option>
-                <option value="18">Computers</option>
-              </select>
-
-              <select
-                className="w-full p-3 rounded-lg bg-gray-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-                value={quizSettings.difficulty}
-                onChange={(e) => setQuizSettings({ ...quizSettings, difficulty: e.target.value })}
-              >
-                <option value="">Any Difficulty</option>
-                <option value="easy">Easy</option>
-                <option value="medium">Medium</option>
-                <option value="hard">Hard</option>
-              </select>
 
               <button
                 onClick={handleStart}
