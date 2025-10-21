@@ -7,3 +7,8 @@ frontend/.env
 frontend/.next
 frontend/out
 .DS_Store
+iac/.terraform
+iac/terraform.tfvars
+iac/terraform.tfstate
+iac/terraform.tfstate.backup
+iac/.terraform.lock.hcl
