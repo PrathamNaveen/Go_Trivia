@@ -3,7 +3,7 @@ name: Deploy Frontend to Render
 on:
   push:
     branches:
-      - master  # change if your deployment branch is different
+      - master
 
 jobs:
   deploy-frontend:
@@ -16,11 +16,11 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 22  # match your Node version
+          node-version: 22
 
       - name: Install frontend dependencies
         run: npm install
-        working-directory: frontend  # point to your frontend folder
+        working-directory: frontend
 
       - name: Build frontend
         run: npm run build
@@ -29,10 +29,10 @@ jobs:
       - name: Deploy to Render
         env:
           RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
-          RENDER_SERVICE_ID: srv-d3po9tili9vc73boistg  # replace with your Render service ID
+          RENDER_FRONTEND_SERVICE_ID: ${{ secrets.RENDER_FRONTEND_SERVICE_ID }}
         run: |
           curl --request POST \
-            --url https://api.render.com/v1/services/${{ env.RENDER_SERVICE_ID }}/deploys \
+            --url https://api.render.com/v1/services/${RENDER_FRONTEND_SERVICE_ID}/deploys \
             --header "accept: application/json" \
             --header "authorization: Bearer $RENDER_API_KEY" \
             --header "content-type: application/json" \

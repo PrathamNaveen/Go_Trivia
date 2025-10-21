@@ -1,3 +1,9 @@
 go-trivia-backend
 backend/node_modules
 backend/.env
+frontend/release
+frontend/node_modules
+frontend/.env
+frontend/.next
+frontend/out
+.DS_Store

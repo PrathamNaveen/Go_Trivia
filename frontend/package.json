@@ -3,9 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "main": "electron/main.js",
+  "type": "module",
+  "description": "A cross-platform desktop app built with Next.js and Electron",
+  "author": "Pratham",
   "scripts": {
     "dev": "next dev",
     "electron": "cross-env NODE_ENV=development electron .",
+    "build:electron": "electron-builder",
     "build": "next build",
     "start": "cross-env NODE_ENV=production electron ."
   },
@@ -22,9 +26,28 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "cross-env": "^7.0.3",
+    "electron": "^33.0.2",
+    "electron-builder": "^25.1.8",
     "eslint": "^9",
     "eslint-config-next": "15.5.6",
     "tailwindcss": "^4",
     "typescript": "^5"
+  },
+  "build": {
+    "appId": "com.pratham.frontend",
+    "productName": "Trivia App",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "electron/**/*",
+      ".next/**/*",
+      "package.json"
+    ],
+    "extraMetadata": {
+      "main": "electron/main.js"
+    },
+    "icon": "assets/trivia-icon.jpg"
   }
 }
